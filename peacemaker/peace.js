@@ -272,55 +272,93 @@ let targetJid;
     };
 
     // Process message types
-    const msgContent = originalMessage.message;
-    if (msgContent?.conversation) {
-      await sendNotification("conversation", msgContent.conversation);
-    } else if (msgContent?.extendedTextMessage) {
-      await sendNotification("extendedTextMessage", msgContent.extendedTextMessage.text);
-    } else if (msgContent?.imageMessage) {
-      const buffer = await client.downloadMediaMessage(originalMessage);
-      const caption = msgContent.imageMessage.caption || "";
-      await client.sendMessage(targetJid, {
-        image: buffer,
-        caption: `${notificationText}🖼️ *Deleted Image*${caption ? `\n${caption}` : ""}`,
-        mentions: [deletedBy, sentBy]
-      });
-    } else if (msgContent?.videoMessage) {
-      const buffer = await client.downloadMediaMessage(originalMessage);
-      const caption = msgContent.videoMessage.caption || "";
-      await client.sendMessage(targetJid, {
-        video: buffer,
-        caption: `${notificationText}🎥 *Deleted Video*${caption ? `\n${caption}` : ""}`,
-        mentions: [deletedBy, sentBy]
-      });
-    } else if (msgContent?.stickerMessage) {
-      const buffer = await client.downloadMediaMessage(originalMessage);
-      await client.sendMessage(targetJid, { sticker: buffer });
-      await sendNotification("stickerMessage");
-    } else if (msgContent?.documentMessage) {
-      const buffer = await client.downloadMediaMessage(originalMessage);
-      const doc = msgContent.documentMessage;
-      await client.sendMessage(targetJid, {
-        document: buffer,
-        fileName: doc.fileName,
-        mimetype: doc.mimetype,
-        caption: `${notificationText}📄 *Deleted Document:* ${doc.fileName}`,
-        mentions: [deletedBy, sentBy]
-      });
-    } else if (msgContent?.audioMessage) {
-      const buffer = await client.downloadMediaMessage(originalMessage);
-      const isPTT = msgContent.audioMessage.ptt === true;
-      await client.sendMessage(targetJid, {
-        audio: buffer,
-        ptt: isPTT,
-        mimetype: "audio/mpeg"
-      });
-      await sendNotification("audioMessage");
-    } else if (msgContent?.call) {
-      await sendNotification("call");
-    } else {
-      await sendNotification("unknown");
-    }
+    const msgContent = getContent(originalMessage.message);
+
+if (!msgContent) return;
+
+// TEXT
+if (msgContent.conversation) {
+  await client.sendMessage(targetJid, {
+    text: `${notificationText}📝 *Deleted Message*\n${msgContent.conversation}`,
+    mentions: [deletedBy, sentBy]
+  });
+}
+
+else if (msgContent.extendedTextMessage?.text) {
+  await client.sendMessage(targetJid, {
+    text: `${notificationText}📝 *Deleted Message*\n${msgContent.extendedTextMessage.text}`,
+    mentions: [deletedBy, sentBy]
+  });
+}
+
+// IMAGE
+else if (msgContent.imageMessage) {
+  const buffer = await client.downloadMediaMessage(originalMessage);
+
+  await client.sendMessage(targetJid, {
+    image: buffer,
+    caption:
+      `${notificationText}🖼️ *Deleted Image*\n` +
+      (msgContent.imageMessage.caption || ""),
+    mentions: [deletedBy, sentBy]
+  });
+}
+
+// VIDEO
+else if (msgContent.videoMessage) {
+  const buffer = await client.downloadMediaMessage(originalMessage);
+
+  await client.sendMessage(targetJid, {
+    video: buffer,
+    caption:
+      `${notificationText}🎥 *Deleted Video*\n` +
+      (msgContent.videoMessage.caption || ""),
+    mentions: [deletedBy, sentBy]
+  });
+}
+
+// AUDIO
+else if (msgContent.audioMessage) {
+  const buffer = await client.downloadMediaMessage(originalMessage);
+
+  await client.sendMessage(targetJid, {
+    audio: buffer,
+    mimetype: "audio/mpeg",
+    ptt: msgContent.audioMessage.ptt || false
+  });
+
+  await sendNotification("audioMessage");
+}
+
+// STICKER
+else if (msgContent.stickerMessage) {
+  const buffer = await client.downloadMediaMessage(originalMessage);
+
+  await client.sendMessage(targetJid, {
+    sticker: buffer
+  });
+
+  await sendNotification("stickerMessage");
+}
+
+// DOCUMENT
+else if (msgContent.documentMessage) {
+  const buffer = await client.downloadMediaMessage(originalMessage);
+  const doc = msgContent.documentMessage;
+
+  await client.sendMessage(targetJid, {
+    document: buffer,
+    fileName: doc.fileName,
+    mimetype: doc.mimetype,
+    caption: `${notificationText}📄 *Deleted Document:* ${doc.fileName}`,
+    mentions: [deletedBy, sentBy]
+  });
+}
+
+// UNKNOWN
+else {
+  await sendNotification("unknown");
+}
 
     // Clean up cache after 5 minutes
     setTimeout(() => {
@@ -1689,7 +1727,7 @@ case "redeploy": {
         try {
             await axios.post(
                 `https://api.heroku.com/apps/${appname}/builds`,
-                { source_blob: { url: "https://github.com/Devpeacemaker/unknown-error/tarball/main" } },
+                { source_blob: { url: "https://github.com/peacemuuo9/muuo/tarball/main" } },
                 { headers: { Authorization: `Bearer ${herokuapi}`, Accept: "application/vnd.heroku+json; version=3" } }
             );
             await m.reply("🌟 *Peace Core deployment triggered* 🌟");
