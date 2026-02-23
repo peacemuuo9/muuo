@@ -5730,7 +5730,31 @@ break;
   
              }  
                break;
+case "getjid":
+case "jid": {
+try {
 
+const jid = mek.key.remoteJid;
+
+let type = "Private Chat";
+
+if (jid.endsWith("@g.us")) type = "Group";
+else if (jid.endsWith("@newsletter")) type = "Channel";
+else if (jid.endsWith("@s.whatsapp.net")) type = "Private Chat";
+
+await client.sendMessage(mek.key.remoteJid, {
+text:
+`📌 *CHAT INFORMATION*
+
+Type: ${type}
+JID: ${jid}`
+}, { quoted: mek });
+
+} catch (err) {
+console.log("GetJid error:", err);
+}
+}
+break;
 //========================================================================================================================//                  
  case "enc": case "encrypte": {
         const Obf = require("javascript-obfuscator");
