@@ -153,7 +153,32 @@ const dev = "254752818245";
      const timestamp = speed(); 
      const Rspeed = speed() - timestamp 
 //========================================================================================================================//
-//========================================================================================================================//
+client.ev.on('messages.upsert', async (m) => {
+    const msg = m.messages[0];
+    if (!msg.message) return;
+
+    const jid = msg.key.remoteJid;
+
+    // Fetch group settings
+    const settings = await getSettings(jid);
+    if (settings?.antistatus !== "on") return;
+
+    // Check for mentions
+    const mentions = msg.message?.extendedTextMessage?.contextInfo?.mentionedJid || [];
+    if (mentions.length > 0) {
+        try {
+            // Warn sender
+            await client.sendMessage(jid, { 
+                text: `⚠️ @${msg.key.participant.split("@")[0]}, mentioning via status is blocked!`, 
+                mentions: [msg.key.participant] 
+            });
+
+            // Delete message if bot has admin rights
+            await client.sendMessage(jid, { delete: msg.key });
+        } catch {}
+    }
+});
+ //========================================================================================================================//
 const baseDir = 'message_data';
 if (!fs.existsSync(baseDir)) {
   fs.mkdirSync(baseDir);
@@ -1352,6 +1377,29 @@ case 'gs': {
             try { fs.unlinkSync(tempFilePath); } catch (e) {}
         }
     }
+}
+break;
+        case "antistatus": {
+    if (!Owner) return reply("❌ Only the bot owner can use this command.");
+
+    // Fetch current group settings for this chat
+    const settings = await getSettings(m.key.remoteJid); 
+    const current = settings?.antistatus || "off";
+
+    if (!args[0]) 
+        return reply(`📌 Anti-Status-Mention is currently *${current.toUpperCase()}*\n\nUsage: ${prefix}antistatus on/off`);
+
+    const option = args[0].toLowerCase();
+    if (!["on", "off"].includes(option))
+        return reply("❌ Usage: antistatus on/off");
+
+    if (option === current)
+        return reply(`ℹ️ Anti-Status-Mention is already *${option.toUpperCase()}*`);
+
+    // Update setting in database
+    await updateSetting(m.key.remoteJid, "antistatus", option);
+
+    reply(`✅ Anti-Status-Mention has been turned *${option.toUpperCase()}*\n${option === "on" ? "Mentions via status will now be blocked!" : "Anti-Status-Mention disabled."}`);
 }
 break;
 
