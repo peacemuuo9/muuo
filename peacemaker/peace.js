@@ -1012,7 +1012,37 @@ case 'antidelete': {
   }
   break;
 }
-  
+  case "channelstatus":
+case "cs": {
+    if (!text && !m.quoted) {
+        return reply(`Usage:\n${prefix}channelstatus Your message\n\nOr reply to a channel message.`);
+    }
+
+    let channelJid = m.key.remoteJid;
+
+    // If used inside a normal chat, try to detect channel from quoted message
+    if (!channelJid.endsWith("@newsletter")) {
+        channelJid = m.quoted?.key?.remoteJid;
+    }
+
+    if (!channelJid || !channelJid.endsWith("@newsletter")) {
+        return reply("❌ Channel not detected.\n\nUse this command inside a WhatsApp Channel or reply to a channel message.");
+    }
+
+    try {
+        const content = text || m.quoted.text || "Channel Update";
+
+        await client.sendMessage(channelJid, {
+            text: `📢 *Channel Update*\n\n${content}`
+        });
+
+        reply("✅ Posted successfully to the channel!");
+    } catch (err) {
+        console.log(err);
+        reply("❌ Failed to post. Make sure the bot is admin in that channel.");
+    }
+}
+break;
                       
 case "gptdm": {
         if(!Owner) throw NotOwner;
