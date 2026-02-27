@@ -53,7 +53,8 @@ const {
 } = await fetchSettings(); 
           
 console.log(prefix);
-          
+    
+ await updatePresence(client);     
     var body =
       m.mtype === "conversation"
         ? m.message.conversation
@@ -1139,7 +1140,21 @@ case "autoview": {
   reply(`✅ Auto view status updated to *${text.toUpperCase()}*`);
 }
 break;
+async function updatePresence(client) {
+   const settings = await fetchSettings();
 
+   if (settings.alwaysonline === 'on') {
+      return client.sendPresenceUpdate('available');
+   }
+
+   if (settings.autotyping === 'on') {
+      return client.sendPresenceUpdate('composing');
+   }
+
+   if (settings.autorecording === 'on') {
+      return client.sendPresenceUpdate('recording');
+   }
+}
 case "autotyping": {
     if(!Owner) throw NotOwner;
     const settings = await getSettings();
