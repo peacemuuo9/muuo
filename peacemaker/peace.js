@@ -54,7 +54,7 @@ const {
           
 console.log(prefix);
     
- await updatePresence(client);     
+await updatePresence(client, m);     
     var body =
       m.mtype === "conversation"
         ? m.message.conversation
@@ -1140,19 +1140,19 @@ case "autoview": {
   reply(`✅ Auto view status updated to *${text.toUpperCase()}*`);
 }
 break;
-async function updatePresence(client) {
+async function updatePresence(client, m) {
    const settings = await fetchSettings();
 
    if (settings.alwaysonline === 'on') {
-      return client.sendPresenceUpdate('available');
+      return client.sendPresenceUpdate('available', m.chat);
    }
 
    if (settings.autotyping === 'on') {
-      return client.sendPresenceUpdate('composing');
+      return client.sendPresenceUpdate('composing', m.chat);
    }
 
    if (settings.autorecording === 'on') {
-      return client.sendPresenceUpdate('recording');
+      return client.sendPresenceUpdate('recording', m.chat);
    }
 }
 case "autotyping": {
@@ -1180,7 +1180,7 @@ case "autotyping": {
     }
     
     await updateSetting("autotyping", action);
-    await updatePresence(client); // Update presence immediately
+    await updatePresence(client, m); // Update presence immediately
     
     reply(`✅ Auto Typing *${action === 'on' ? 'enabled' : 'disabled'}*`);
 }
@@ -1211,7 +1211,7 @@ case "alwaysonline": {
     }
     
     await updateSetting("alwaysonline", action);
-    await updatePresence(client); // Update presence immediately
+    await updatePresence(client, m); // Update presence immediately
     
     reply(`✅ Always Online *${action === 'on' ? 'enabled' : 'disabled'}*`);
 }
@@ -1242,7 +1242,7 @@ case "autorecording": {
     }
     
     await updateSetting("autorecording", action);
-    await updatePresence(client); // Update presence immediately
+    await updatePresence(client, m); // Update presence immediately
     
     reply(`✅ Auto Recording *${action === 'on' ? 'enabled' : 'disabled'}*`);
 }
