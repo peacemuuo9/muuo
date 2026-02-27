@@ -13,13 +13,12 @@ try {
 const defaultSettings = {
   antilink: 'on',
   antilinkall: 'off',
- autobioText: 'KING M 𝚁𝙴𝙿𝚁𝙴𝚂𝙴𝙽𝚃𝚂 SHARP📌',
   autobio: 'on',
   antidelete: 'on',
   antitag: 'on',
   antibot: 'off',
   anticall: 'on',
-antistatusmention: 'off',
+  antistatusmention: 'off',
   antiforeign: 'off',
   badword: 'off',
   gptdm: 'off',
@@ -29,11 +28,18 @@ antistatusmention: 'off',
   prefix: '.',
   autolike: 'on',
   autoview: 'on',
-  wapresence: 'recording',
+
+  
+  autotyping: 'off',
+  alwaysonline: 'off',
+  autorecording: 'on',
+
+  wapresence: 'off',
+
   antiedit: 'private',
-    antisticker: 'off',
-    menuTitle: "KING MD VIP",
-    antigroupmention: 'off'
+  antisticker: 'off',
+  menuTitle: "PEACE CORE",
+  antigroupmention: 'off'
 };
 
 // ================= MODE DETECTION =================
