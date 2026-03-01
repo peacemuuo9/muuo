@@ -54,7 +54,7 @@ const {
           
 console.log(prefix);
     
-await updatePresence(client, m);     
+ 
     var body =
       m.mtype === "conversation"
         ? m.message.conversation
