@@ -402,20 +402,19 @@ else {
     let argsLog = budy.length > 30 ? `${q.substring(0, 30)}...` : budy;
           
 //========================================================================================================================//
-async function updatePresence(client) {
-    const settings = await getSettings();
-    const Grace = mek.key.remoteJid; 
-    
-    if (settings.alwaysonline === 'on') {
-        client.sendPresenceUpdate('available', Grace);
-    } else if (settings.autotyping === 'on') {
-        client.sendPresenceUpdate('composing', Grace);
-    } else if (settings.autorecording === 'on') {
-        client.sendPresenceUpdate('recording', Grace);
+const Grace = mek.key.remoteJid;
+if (wapresence === 'online') { 
+             client.sendPresenceUpdate('available', Grace);
+	
+} else if (wapresence === 'typing') { 
+             client.sendPresenceUpdate('composing', Grace);
+	
+      }	else if (wapresence === 'recording') { 
+             client.sendPresenceUpdate('recording', Grace);
+             
     } else {
-        client.sendPresenceUpdate('unavailable', Grace);
+             client.sendPresenceUpdate('unavailable', Grace);
     }
-}
 //========================================================================================================================//    
 if (cmd && mode === 'private' && !itsMe && !isPrivileged && m.sender !== dev) {
     return;
@@ -1140,142 +1139,52 @@ case "autoview": {
   reply(`✅ Auto view status updated to *${text.toUpperCase()}*`);
 }
 break;
-async function updatePresence(client, m) {
-   const settings = await fetchSettings();
-
-   if (settings.alwaysonline === 'on') {
-      return client.sendPresenceUpdate('available', m.chat);
-   }
-
-   if (settings.autotyping === 'on') {
-      return client.sendPresenceUpdate('composing', m.chat);
-   }
-
-   if (settings.autorecording === 'on') {
-      return client.sendPresenceUpdate('recording', m.chat);
-   }
-}
-case "autotyping": {
-    if(!Owner) throw NotOwner;
-    const settings = await getSettings();
-    const current = settings.autotyping;
+case 'autotyping': {
+    if (!Owner) throw NotOwner;
+    if (!text) return reply(`⌨️ *Auto-Typing Control*\n\nUsage: ${prefix}autotyping on/off`);
     
-    if (!text) return reply(`🤖 Auto Typing is currently: *${current === 'on' ? 'ON' : 'OFF'}*`);
-    
-    const args = text.toLowerCase().split(' ');
-    const action = args[0];
-    
-    if (!["on", "off"].includes(action)) {
-        return reply("Usage: autotyping on/off");
+    if (text.toLowerCase() === 'on') {
+        await updateSetting("wapresence", "typing");
+        reply("✅ *Auto-Typing Enabled* (Bot will show 'typing...' status)");
+    } else if (text.toLowerCase() === 'off') {
+        await updateSetting("wapresence", "unavailable");
+        reply("✅ *Auto-Typing Disabled*");
+    } else {
+        reply("❌ Invalid option. Use *on* or *off*.");
     }
-    
-    if (action === current) {
-        return reply(`⚠️ Auto Typing is already *${action === 'on' ? 'ON' : 'OFF'}*`);
-    }
-    
-   
-    if (action === 'on') {
-        await updateSetting("autorecording", "off");
-        await updateSetting("alwaysonline", "off");
-    }
-    
-    await updateSetting("autotyping", action);
-    await updatePresence(client, m); // Update presence immediately
-    
-    reply(`✅ Auto Typing *${action === 'on' ? 'enabled' : 'disabled'}*`);
 }
 break;
 
-case "alwaysonline": {
-    if(!Owner) throw NotOwner;
-    const settings = await getSettings();
-    const current = settings.alwaysonline;
+case 'autorecording': {
+    if (!Owner) throw NotOwner;
+    if (!text) return reply(`🎙️ *Auto-Recording Control*\n\nUsage: ${prefix}autorecording on/off`);
     
-    if (!text) return reply(`🌐 Always Online is currently: *${current === 'on' ? 'ON' : 'OFF'}*`);
-    
-    const args = text.toLowerCase().split(' ');
-    const action = args[0];
-    
-    if (!["on", "off"].includes(action)) {
-        return reply("Usage: alwaysonline on/off");
+    if (text.toLowerCase() === 'on') {
+        await updateSetting("wapresence", "recording");
+        reply("✅ *Auto-Recording Enabled* (Bot will show 'recording audio...' status)");
+    } else if (text.toLowerCase() === 'off') {
+        await updateSetting("wapresence", "unavailable");
+        reply("✅ *Auto-Recording Disabled*");
+    } else {
+        reply("❌ Invalid option. Use *on* or *off*.");
     }
-    
-    if (action === current) {
-        return reply(`⚠️ Always Online is already *${action === 'on' ? 'ON' : 'OFF'}*`);
-    }
-    
-    
-    if (action === 'on') {
-        await updateSetting("autotyping", "off");
-        await updateSetting("autorecording", "off");
-    }
-    
-    await updateSetting("alwaysonline", action);
-    await updatePresence(client, m); // Update presence immediately
-    
-    reply(`✅ Always Online *${action === 'on' ? 'enabled' : 'disabled'}*`);
 }
 break;
 
-case "autorecording": {
-    if(!Owner) throw NotOwner;
-    const settings = await getSettings();
-    const current = settings.autorecording;
+case 'alwaysonline': 
+case 'available': {
+    if (!Owner) throw NotOwner;
+    if (!text) return reply(`🟢 *Always Online Control*\n\nUsage: ${prefix}alwaysonline on/off`);
     
-    if (!text) return reply(`🎙️ Auto Recording is currently: *${current === 'on' ? 'ON' : 'OFF'}*`);
-    
-    const args = text.toLowerCase().split(' ');
-    const action = args[0];
-    
-    if (!["on", "off"].includes(action)) {
-        return reply("Usage: autorecording on/off");
+    if (text.toLowerCase() === 'on') {
+        await updateSetting("wapresence", "online");
+        reply("✅ *Always Online Enabled* (Bot will always show 'Online')");
+    } else if (text.toLowerCase() === 'off') {
+        await updateSetting("wapresence", "unavailable");
+        reply("✅ *Always Online Disabled* (Bot will hide presence)");
+    } else {
+        reply("❌ Invalid option. Use *on* or *off*.");
     }
-    
-    if (action === current) {
-        return reply(`⚠️ Auto Recording is already *${action === 'on' ? 'ON' : 'OFF'}*`);
-    }
-    
-    // Turn off other presences if turning this on
-    if (action === 'on') {
-        await updateSetting("autotyping", "off");
-        await updateSetting("alwaysonline", "off");
-    }
-    
-    await updateSetting("autorecording", action);
-    await updatePresence(client, m); // Update presence immediately
-    
-    reply(`✅ Auto Recording *${action === 'on' ? 'enabled' : 'disabled'}*`);
-}
-break;
-
-case "wapresence": {
-    if(!Owner) throw NotOwner;
-    const settings = await getSettings();
-    
-    let status = [];
-    
-    if (settings.alwaysonline === 'on') status.push("🌐 Online");
-    if (settings.autotyping === 'on') status.push("✍️ Typing");
-    if (settings.autorecording === 'on') status.push("🎙️ Recording");
-    if (status.length === 0) status.push("⚫ Unavailable");
-    
-    const currentStatus = status.join(", ");
-    const message = `
-📱 *Current Presence Status:*
-    
-*Online Mode:* ${settings.alwaysonline === 'on' ? '✅ ON' : '❌ OFF'}
-*Auto Typing:* ${settings.autotyping === 'on' ? '✅ ON' : '❌ OFF'}
-*Auto Recording:* ${settings.autorecording === 'on' ? '✅ ON' : '❌ OFF'}
-
-*Active Presence:* ${currentStatus}
-
-*Commands to control:*
-• \`autotyping on/off\`
-• \`alwaysonline on/off\`
-• \`autorecording on/off\`
-    `;
-    
-    reply(message);
 }
 break;
 
