@@ -28,14 +28,7 @@ const defaultSettings = {
   prefix: '.',
   autolike: 'on',
   autoview: 'on',
-
-  
-  autotyping: 'off',
-  alwaysonline: 'off',
-  autorecording: 'on',
-
-  wapresence: 'off',
-
+ wapresence: 'online',
   antiedit: 'private',
   antisticker: 'off',
   menuTitle: "PEACE CORE",
