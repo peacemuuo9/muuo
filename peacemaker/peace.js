@@ -37,7 +37,8 @@ module.exports = peace = async (client, m, chatUpdate, store) => {
   try {
 
 const {
-  alwaysonline, 
+	wapresence,
+	alwaysonline, 
   autotyping,
   autorecording,
   autoread,
