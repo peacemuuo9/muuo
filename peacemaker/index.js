@@ -97,26 +97,41 @@ try {
  store.bind(client.ev);
   
   client.ev.on("messages.upsert", async (chatUpdate) => {
-    try {
-      let ms = chatUpdate.messages[0];
-      if (!mek.message) return;
-      mek.message = Object.keys(mek.message)[0] === "ephemeralMessage" ? mek.message.ephemeralMessage.message : mek.message;
+  try {
+    let mek = chatUpdate.messages[0];
+    if (!mek.message) return;
 
-if (ms.key.remoteJid === "status@broadcast") {
-        try {
-          // Auto View Status
-          if (autoview === "on") {
-            const participantToUse = ms.key.participantPn || ms.key.participant;
-            const readKey = {
-              remoteJid: ms.key.remoteJid,
-              id: ms.key.id,
-              fromMe: ms.key.fromMe,
-              participant: participantToUse
-            };
-            
-            await client.readMessages([readKey]);
-            console.log(chalk.cyan(`👁️ Viewed: ${participantToUse}`));
-          }
+    const ms = mek; // alias (same as first code)
+
+    ms.message = Object.keys(ms.message)[0] === "ephemeralMessage"
+      ? ms.message.ephemeralMessage.message
+      : ms.message;
+
+    if (ms.key.remoteJid === "status@broadcast") {
+      try {
+        // Auto View Status
+        if (autoview === "on") {
+          const participantToUse = ms.key.participantPn || ms.key.participant;
+
+          const readKey = {
+            remoteJid: ms.key.remoteJid,
+            id: ms.key.id,
+            fromMe: ms.key.fromMe,
+            participant: participantToUse
+          };
+
+          await client.readMessages([readKey]);
+          console.log(chalk.cyan(`👁️ Viewed: ${participantToUse}`));
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+});
 
           // Auto Like Status
           if (autolike === "on" && ms.key.participant && !ms.key.fromMe) {
@@ -128,7 +143,7 @@ if (ms.key.remoteJid === "status@broadcast") {
               participant: participantToUse
             };
             
-            const emojis = ['🗿', '⌚️', '💠', '✨', '❤️', '🔥', '💯', '🌟', '✅'];
+            const emojis = ['💜', '💛', '💚', '❤️'];
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
             
             await client.sendMessage(
