@@ -102,7 +102,7 @@ try {
       if (!mek.message) return;
       mek.message = Object.keys(mek.message)[0] === "ephemeralMessage" ? mek.message.ephemeralMessage.message : mek.message;
 
-if (ms.key.remoteJid === "status@broadcast") {
+if (mek.key.remoteJid === "status@broadcast") {
         try {
           // Auto View Status
           if (autoview === "on") {
