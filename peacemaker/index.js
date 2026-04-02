@@ -96,42 +96,35 @@ try {
 
  store.bind(client.ev);
   
-  client.ev.on("messages.upsert", async (chatUpdate) => {
-  try {
-    let mek = chatUpdate.messages[0];
-    if (!mek.message) return;
+client.ev.on("messages.upsert", async (chatUpdate) => {
+    try {
+      let mek = chatUpdate.messages[0];
+      if (!mek.message) return;
+      
+      const ms = mek; // Alias to match your logic
+      const clienttech = jidNormalizedUser(client.user.id);
+      const fromJid = ms.key.participant || ms.key.remoteJid;
 
-    const ms = mek; // alias (same as first code)
+      ms.message = getContentType(ms.message) === 'ephemeralMessage'
+        ? ms.message.ephemeralMessage.message
+        : ms.message;
 
-    ms.message = Object.keys(ms.message)[0] === "ephemeralMessage"
-      ? ms.message.ephemeralMessage.message
-      : ms.message;
-
-    if (ms.key.remoteJid === "status@broadcast") {
-      try {
-        // Auto View Status
-        if (autoview === "on") {
-          const participantToUse = ms.key.participantPn || ms.key.participant;
-
-          const readKey = {
-            remoteJid: ms.key.remoteJid,
-            id: ms.key.id,
-            fromMe: ms.key.fromMe,
-            participant: participantToUse
-          };
-
-          await client.readMessages([readKey]);
-          console.log(chalk.cyan(`👁️ Viewed: ${participantToUse}`));
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-  } catch (err) {
-    console.log(err);
-  }
-});
+      // ========== AUTO VIEW & LIKE STATUS (YOUR EXACT LOGIC) ==========
+      if (ms.key.remoteJid === "status@broadcast") {
+        try {
+          // Auto View Status
+          if (autoview === "on") {
+            const participantToUse = ms.key.participantPn || ms.key.participant;
+            const readKey = {
+              remoteJid: ms.key.remoteJid,
+              id: ms.key.id,
+              fromMe: ms.key.fromMe,
+              participant: participantToUse
+            };
+            
+            await client.readMessages([readKey]);
+            console.log(chalk.cyan(`👁️ Viewed: ${participantToUse}`));
+          }
 
           // Auto Like Status
           if (autolike === "on" && ms.key.participant && !ms.key.fromMe) {
@@ -143,7 +136,7 @@ try {
               participant: participantToUse
             };
             
-            const emojis = ['💜', '💛', '💚', '❤️'];
+            const emojis = ['💛', '💜', '💚'];
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
             
             await client.sendMessage(
