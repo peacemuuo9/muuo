@@ -8,6 +8,7 @@ const {
   jidDecode,
   proto,
   getContentType,
+  jidNormalizedUser 
 } = require("@whiskeysockets/baileys");
 
 const pino = require("pino");
