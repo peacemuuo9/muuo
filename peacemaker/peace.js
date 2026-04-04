@@ -38,10 +38,7 @@ module.exports = peace = async (client, m, chatUpdate, store) => {
 
 const {
 	wapresence,
-	alwaysonline, 
-  autotyping,
-  autorecording,
-  autoread,
+	autoread,
   mode,
   prefix,
   antilink,
@@ -406,11 +403,11 @@ else {
 const Grace = mek.key.remoteJid;
 if (wapresence === 'online') { 
              client.sendPresenceUpdate('available', Grace);
-	
+        
 } else if (wapresence === 'typing') { 
              client.sendPresenceUpdate('composing', Grace);
-	
-      }	else if (wapresence === 'recording') { 
+        
+      } else if (wapresence === 'recording') { 
              client.sendPresenceUpdate('recording', Grace);
              
     } else {
@@ -1186,6 +1183,17 @@ case 'available': {
     } else {
         reply("❌ Invalid option. Use *on* or *off*.");
     }
+}
+break;
+			case "wapresence": {
+       if(!Owner) throw NotOwner;
+  const settings = await getSettings();
+  const current = settings.wapresence;
+  if (!text) return reply(`👤 Presence is currently *${current}*`);
+  if (!["typing", "online", "recording"].includes(text)) return reply("Usage: wapresence typing/online/recording");
+  if (text === current) return reply(`✅ Presence is already *${text}*`);
+  await updateSetting("wapresence", text);
+  reply(`✅ Presence updated to *${text}*`);
 }
 break;
 
