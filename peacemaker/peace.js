@@ -42,6 +42,8 @@ const {
   mode,
   prefix,
   antilink,
+ 
+  antisticker, 
   antilinkall,
   antidelete,
   gptdm,
@@ -424,7 +426,52 @@ if (autoread === 'on' && !m.isGroup) {
     }
       if (itsMe && mek.key.id.startsWith("BAE5") && mek.key.id.length === 16 && !m.isGroup) return;
 //========================================================================================================================//
-// ================== MESSAGE UPDATES LISTENER ==================
+const isSticker = m.mtype === 'stickerMessage' || (m.message && m.message.stickerMessage);
+
+// 2. Check if feature is ON and Sticker is detected
+if (antisticker && antisticker !== 'off' && isSticker) {
+    
+    // 3. Permissions: Only act if Bot is Admin & User is NOT Admin/Owner
+    if (!Owner && isBotAdmin && !isAdmin && m.isGroup) {
+        
+        const kid = m.sender;
+        const userTag = `@${kid.split("@")[0]}`;
+
+        console.log(`[ANTI-STICKER] Sticker detected from ${kid}`);
+
+        // ACTION: DELETE (Always delete first)
+        try {
+            await client.sendMessage(m.chat, {
+                delete: {
+                    remoteJid: m.chat,
+                    fromMe: false,
+                    id: m.key.id,
+                    participant: kid
+                }
+            });
+        } catch (e) {
+            logError('ANTI-STICKER', 'Delete failed (Bot might not be admin)');
+        }
+
+        // ACTION: MODE SPECIFIC
+        if (antisticker === 'kick') {
+            await client.sendMessage(m.chat, {
+                text: `🚫 *ANTI-STICKER* \n\n${userTag} removed.`,
+                mentions: [kid]
+            });
+            await client.groupParticipantsUpdate(m.chat, [kid], 'remove');
+        
+        } else if (antisticker === 'warn') {
+            await client.sendMessage(m.chat, {
+                text: `⚠️ *WARNING* \n\n${userTag}, stickers are prohibited!`,
+                mentions: [kid]
+            });
+        }
+        // If mode is 'delete', we do nothing else (sticker is already deleted above)
+    }
+}
+	  
+	  // ================== MESSAGE UPDATES LISTENER ==================
 client.ev.on("messages.upsert", async (m) => {
   try {
     const mek = m.messages[0];
@@ -745,6 +792,8 @@ let cap =`━━ *PEACE CORE* ━━
 • Alwaysonline
 • Autorecording 
 • Wapresence
+• Antisticker 
+• Antimention 
 
 *FOOTBALL MENU*
 • Epl
@@ -1039,6 +1088,33 @@ case "cs": {
         console.log(err);
         reply("❌ Failed to post. Make sure the bot is admin in that channel.");
     }
+}
+break;
+			case "antisticker": {
+    if (!Owner) throw NotOwner;
+    const settings = await getSettings();
+    const current = settings.antisticker;
+
+    // If no argument is provided, show current status and usage
+    if (!text) {
+        return reply(`🚫 *Anti-Sticker Settings*\n\n` +
+                     `Current Mode: *${current.toUpperCase()}*\n` +
+                     `Usage:\n` +
+                     `▪️ ${prefix}antisticker off (Disable)\n` +
+                     `▪️ ${prefix}antisticker delete (Delete sticker only)\n` +
+                     `▪️ ${prefix}antisticker warn (Delete + Warn user)\n` +
+                     `▪️ ${prefix}antisticker kick (Delete + Kick user)`);
+    }
+
+    const validModes = ["off", "delete", "warn", "kick"];
+    const newMode = text.toLowerCase();
+
+    if (!validModes.includes(newMode)) {
+        return reply("❌ Invalid mode. Please use: off, delete, warn, or kick.");
+    }
+
+    await updateSetting("antisticker", newMode);
+    reply(`✅ Anti-Sticker mode set to *${newMode.toUpperCase()}*`);
 }
 break;
                       
