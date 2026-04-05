@@ -14,6 +14,7 @@ async function fetchSettings() {
     antilinkall: data.antilinkall,
     antidelete: data.antidelete,
     antitag: data.antitag,
+    antisticker: data.antisticker,
     antiforeign: data.antiforeign,
     antibot: data.antibot,
     welcome: data.welcome,
