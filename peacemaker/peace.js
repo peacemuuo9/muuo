@@ -5727,6 +5727,7 @@ case "dil": {
     if (!m.quoted) throw "No message quoted for deletion";
 
     const { id: quotedId, sender: quotedSender, isBaileys } = m.quoted;
+
     if (isBaileys && quotedSender.split('@')[0] === client.user.id.split('@')[0]) {
         throw "I cannot delete my own message.";
     }
@@ -5741,13 +5742,12 @@ case "dil": {
         }
     });
 
-    // Delete the command message itself
+    // Delete your command message
     await client.sendMessage(m.chat, {
         delete: {
             remoteJid: m.chat,
             fromMe: true,
-            id: m.key.id,
-            participant: m.key.participant || m.sender
+            id: m.key.id
         }
     });
 }
