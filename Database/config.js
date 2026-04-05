@@ -13,6 +13,7 @@ try {
 const defaultSettings = {
   antilink: 'on',
   antilinkall: 'off',
+   antisticker: 'on',
   autobio: 'on',
   antidelete: 'on',
   antitag: 'on',
