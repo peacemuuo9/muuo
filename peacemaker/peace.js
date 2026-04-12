@@ -3546,23 +3546,35 @@ m.reply("An error occured.")
 try {
 
 const cap = "ᴇᴅɪᴛᴇᴅ ʙʏ ᴘᴇᴀᴄᴇ ʜᴜʙ";
-if (!m.quoted) return m.reply("Send the image then tag it with the command.");
-if (!/image/.test(mime)) return m.reply("That is not an image, try again while quoting an actual image.");             
 
-let fdr = await client.downloadAndSaveMediaMessage(m.quoted)
-let fta = await uploadToCatbox(fdr)
-                    m.reply("𝗔 𝗺𝗼𝗺𝗲𝗻𝘁, 𝗣𝗲𝗮𝗰𝗲 𝗶𝘀 𝗲𝗿𝗮𝘀𝗶𝗻𝗴 𝘁𝗵𝗲 𝗯𝗮𝗰𝗸𝗴𝗿𝗼𝘂𝗻𝗱. . .");
+if (!m.quoted) return m.reply("Reply to an image.");
 
-const image = `https://api.dreaded.site/api/removebg?imageurl=${fta}`
-await client.sendMessage(m.chat, { image: { url: image }, caption: cap}, {quoted: m });
-
-} catch (error) {
-m.reply("An error occured...")
-
+const mime = m.quoted.mimetype || m.quoted.msg?.mimetype;
+if (!mime || !mime.includes("image")) {
+return m.reply("Reply to a valid image.");
 }
 
-      }
-        break;
+m.reply("⏳ Removing background...");
+
+let file = await client.downloadAndSaveMediaMessage(m.quoted);
+if (!file) return m.reply("Failed to download image.");
+
+let url = await uploadToCatbox(file);
+if (!url) return m.reply("Upload failed.");
+
+const api = `https://api.dreaded.site/api/removebg?imageurl=${encodeURIComponent(url)}`;
+
+await client.sendMessage(m.chat, {
+image: { url: api },
+caption: cap
+}, { quoted: m });
+
+} catch (err) {
+console.log("REMOVE BG ERROR:", err);
+m.reply("❌ Failed: " + err.message);
+}
+}
+break;
 
 //========================================================================================================================//                  
                      case 'fact': {
